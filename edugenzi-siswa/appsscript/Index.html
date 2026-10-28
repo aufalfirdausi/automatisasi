@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <?!= include('styles'); ?>
+  </head>
+  <body>
+    <main class="container">
+      <section id="loginView" class="card login-card">
+        <h1>Administrasi Siswa</h1>
+        <p class="muted">Edugenzi · Prototype internal</p>
+        <form id="loginForm">
+          <label>Nama pengguna<input name="username" autocomplete="username" required></label>
+          <label>Password<input name="password" type="password" autocomplete="current-password" required></label>
+          <button type="submit">Masuk</button>
+        </form>
+        <p id="loginMessage" class="message" role="status"></p>
+      </section>
+
+      <section id="appView" hidden>
+        <header class="topbar">
+          <div><h1>Administrasi Siswa</h1><p class="muted">Edugenzi</p></div>
+          <button id="logoutButton" class="secondary">Keluar</button>
+        </header>
+
+        <section class="card">
+          <h2>Tambah siswa</h2>
+          <form id="studentForm" class="form-grid">
+            <label>Nama siswa<input name="name" maxlength="100" required></label>
+            <label>Jenis kelamin<select name="gender" required><option value="">Pilih</option><option>Laki-laki</option><option>Perempuan</option></select></label>
+            <label>Nama orang tua<input name="parent" maxlength="100" required></label>
+            <label>Nomor WhatsApp orang tua<input name="whatsapp" type="tel" maxlength="20" placeholder="08xxxxxxxxxx" required></label>
+            <label>Program kelas<select name="program" required><option value="">Pilih</option><option value="coding">Coding (CD)</option><option value="design">Design (DSG)</option><option value="publicspeaking">Public Speaking (PB)</option></select></label>
+            <div class="form-action"><button type="submit">Simpan dan buat surat</button></div>
+          </form>
+          <p id="formMessage" class="message" role="status"></p>
+        </section>
+
+        <section class="card">
+          <div class="list-header"><h2>Data siswa</h2><input id="searchInput" type="search" placeholder="Cari NIS, nama, program…" aria-label="Cari siswa"></div>
+          <div class="table-wrap"><table><thead><tr><th>NIS</th><th>Nama</th><th>Program</th><th>Orang tua</th><th>Surat</th></tr></thead><tbody id="studentRows"></tbody></table></div>
+          <p id="listMessage" class="muted" role="status"></p>
+        </section>
+      </section>
+    </main>
+    <?!= include('scripts'); ?>
+  </body>
+</html>

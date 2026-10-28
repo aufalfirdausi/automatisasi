@@ -1,0 +1,111 @@
+<script>
+  let sessionToken = sessionStorage.getItem('edugenziSession') || '';
+  const byId = id => document.getElementById(id);
+  const showMessage = (element, text, error = false) => {
+    element.textContent = text || '';
+    element.classList.toggle('error', error);
+  };
+  const callServer = (method, ...args) => new Promise((resolve, reject) => {
+    google.script.run.withSuccessHandler(resolve).withFailureHandler(error => reject(new Error(error.message || String(error))))[method](...args);
+  });
+
+  function showApp() {
+    byId('loginView').hidden = true;
+    byId('appView').hidden = false;
+    loadStudents();
+  }
+
+  byId('loginForm').addEventListener('submit', async event => {
+    event.preventDefault();
+    const formElement = event.currentTarget;
+    const button = formElement.querySelector('button');
+    button.disabled = true;
+    showMessage(byId('loginMessage'), '');
+    const form = new FormData(formElement);
+    try {
+      const result = await callServer('login', form.get('username'), form.get('password'));
+      sessionToken = result.token;
+      sessionStorage.setItem('edugenziSession', sessionToken);
+      formElement.reset();
+      showApp();
+    } catch (error) {
+      showMessage(byId('loginMessage'), error.message, true);
+    } finally {
+      button.disabled = false;
+    }
+  });
+
+  byId('logoutButton').addEventListener('click', async () => {
+    try { await callServer('logout', sessionToken); } catch (_) {}
+    sessionToken = '';
+    sessionStorage.removeItem('edugenziSession');
+    byId('appView').hidden = true;
+    byId('loginView').hidden = false;
+  });
+
+  byId('studentForm').addEventListener('submit', async event => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const button = form.querySelector('button');
+    button.disabled = true;
+    showMessage(byId('formMessage'), 'Menyimpan data dan membuat surat…');
+    const data = Object.fromEntries(new FormData(form).entries());
+    try {
+      const result = await callServer('addStudent', sessionToken, data);
+      showMessage(byId('formMessage'), `${result.message} NIS: ${result.nis}.`);
+      form.reset();
+      await loadStudents();
+    } catch (error) {
+      showMessage(byId('formMessage'), error.message, true);
+      if (error.message.includes('Sesi berakhir')) await expireSession();
+    } finally {
+      button.disabled = false;
+    }
+  });
+
+  let searchTimer;
+  byId('searchInput').addEventListener('input', () => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(loadStudents, 250);
+  });
+
+  async function loadStudents() {
+    showMessage(byId('listMessage'), 'Memuat data…');
+    try {
+      const students = await callServer('listStudents', sessionToken, byId('searchInput').value);
+      const tbody = byId('studentRows');
+      tbody.replaceChildren();
+      students.forEach(student => {
+        const row = document.createElement('tr');
+        [student.nis, student.name, student.program, student.parent].forEach(value => {
+          const cell = document.createElement('td');
+          cell.textContent = value;
+          row.appendChild(cell);
+        });
+        const fileCell = document.createElement('td');
+        const link = document.createElement('a');
+        link.href = student.fileUrl;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.textContent = 'Lihat PDF';
+        fileCell.appendChild(link);
+        row.appendChild(fileCell);
+        tbody.appendChild(row);
+      });
+      showMessage(byId('listMessage'), students.length ? `${students.length} data ditampilkan.` : 'Belum ada data yang cocok.');
+    } catch (error) {
+      showMessage(byId('listMessage'), error.message, true);
+      if (error.message.includes('Sesi berakhir')) await expireSession();
+    }
+  }
+
+  async function expireSession() {
+    sessionToken = '';
+    sessionStorage.removeItem('edugenziSession');
+    byId('appView').hidden = true;
+    byId('loginView').hidden = false;
+    showMessage(byId('loginMessage'), 'Sesi berakhir. Silakan masuk kembali.', true);
+  }
+
+  if (sessionToken) showApp();
+</script>

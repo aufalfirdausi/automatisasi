@@ -1,0 +1,8 @@
+nama_siswa,jenis_kelamin,nama_orang_tua,no_whatsapp,program,hasil_yang_diharapkan
+Alya Putri,Perempuan,Rina Putri,081234567890,coding,CD01 dan PDF dummy dibuat
+Bima Santoso,Laki-laki,Dedi Santoso,081234567891,design,DSG01 dan PDF dummy dibuat
+Citra Amelia,Perempuan,Sari Amelia,081234567892,publicspeaking,PB01 dan PDF dummy dibuat
+D'Angelo Putra,Laki-laki,Andi Putra,081234567893,coding,CD02 dan PDF dummy dibuat
+Nama Sangat Panjang Contoh Perempuan,Perempuan,Orang Tua Contoh,081234567894,design,DSG02 dan nama folder aman
+,,Orang Tua,081234567895,coding,Ditolak karena field wajib kosong
+Eka Putri,Perempuan,Siti Putri,nomor-tidak-valid,coding,Ditolak karena nomor WhatsApp tidak valid
